@@ -6,7 +6,6 @@ using UnityEngine.UI;
 public class QuizController : MonoBehaviour 
 {
 
-	public CanvasGroup aPanel;										// if your buttons are childed to a panel with canvas group to disable during question cooldown
 	public Text questionDisplay;									// text to display question text
 	public QuizDataStorer quizDataStorer;							// reference to the script that stores quiz data in classes
 	public GameObject[] answerObject;								// the objects that will be used for answers. buttons, asteroids, whatever
@@ -17,7 +16,7 @@ public class QuizController : MonoBehaviour
 
 	void Start () 
 	{
-		UpdateQuestions();											// show the first question
+		UpdateQuestions();											// show the first question. IF YOU GET NULL REFERENCE OR OUT OF RANGE this might be because this is trying to display a question before the quizDataStorer has finished, either make this script execute after with code execution order in unity or idk maybe use a startbutton instead of calling from start
 		SetMaxRounds();												// call to set max rounds
 	}
 
@@ -36,16 +35,15 @@ public class QuizController : MonoBehaviour
 	{
 		if(roundNum <= maxRounds)
 		{
-			//aPanel.interactable = true;								// if you're using a pause between questions and disabling buttons
 			questionDisplay.text = quizDataStorer.qData.questions[roundNum].questionText;									// set question text
 			//questionImage.sprite = Resources.Load<Sprite>(quizDataStorer.qData.questions[roundNum].imagePath);				// set question image
 			
 			
-			for(int i = 0; i < answerObject.Length; i++)
+			for(int i = 0; i < answerObject.Length; i++)		// as many answer objects as there are, set text and stuff
 			{
 				
-				answerObject[i].GetComponentInChildren<Text>().text = quizDataStorer.qData.questions[roundNum].answers[i].answerText;		// set answer text
-				answerObject[i].GetComponent<aButtonScript>().isCorrect = quizDataStorer.qData.questions[roundNum].answers[i].isCorrect;	// set the isCorrect bool
+				answerObject[i].GetComponentInChildren<Text>().text = quizDataStorer.qData.questions[roundNum].answers[i].answerText;		// set answer text. looks for text in children
+				answerObject[i].GetComponent<AnswerObject>().isCorrect = quizDataStorer.qData.questions[roundNum].answers[i].isCorrect;	// set the isCorrect bool
 			}
 
 		}
@@ -56,11 +54,10 @@ public class QuizController : MonoBehaviour
 		
 	}
 
-	public void ButtonClicked(bool isCorrect)
+	public void ReceiveAnswer(bool isCorrect)
 	{
 		if(isCorrect)
 		{
-			//aPanel.interactable = false; 		// disable buttons if you want a pause
 			Debug.Log("yes");
 			//StartCoroutine(QuestionCooldown());		// do you want a pause between questions?
 			UpdateQuestions();						// if answer is correct then we show next question
