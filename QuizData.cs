@@ -7,5 +7,5 @@ public class QuizData
 {
 	//public QuestionData QuestionData;
 	
-	public List<QuestionData> questions = new List<QuestionData>();
+	public List<SectionData> sectionData = new List<SectionData>();
 }

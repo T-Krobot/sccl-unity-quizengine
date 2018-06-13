@@ -2,34 +2,57 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class QuizDataStorer : MonoBehaviour 
+[System.Serializable]
+public class QuizDataStorer 
 {
 	public QuizData qData;
+    //private int h = 0;
 
-	public void StoreQuizData(ScenerySet latstScenery)
+	public void StoreQuizData(List<ScenerySet> latestScenery)
     {
-        Debug.Log(latstScenery.Questions_list.Count);
-        for(int i = 0; i < latstScenery.Questions_list.Count; i++)
-        {   // storing questin data, can add fields to QuestionData class and then add lines here
-            QuestionData q = new QuestionData();
-            q.questionText = latstScenery.Questions_list[i].question_text;
-            q.imagePath = latstScenery.Questions_list[i].question_image;
-            q.audioPath = latstScenery.Questions_list[i].question_audio;
-            q.questionNum = i;
-            for(int b = 0; b < latstScenery.Questions_list[i].option_parts.Count; b++)
-            {   // can add extra data for answers here. need to add fields to Answerdata first
-                Answerdata a = new Answerdata();
-                a.answerText = latstScenery.Questions_list[i].option_parts[b].text;
-                a.imagePath = latstScenery.Questions_list[i].option_parts[b].image;
-                a.audioPath = latstScenery.Questions_list[i].option_parts[b].audio;
-                a.answerNum = latstScenery.Questions_list[i].option_parts[b].answer_number;
-                a.isCorrect = latstScenery.Questions_list[i].option_parts[b].iscorrect;
+        
+        for(int h = 0; h < latestScenery.Count; h++)
+        {
+            Debug.Log(latestScenery[h].Questions_list.Count);
 
-                q.answers.Add(a);
+            SectionData newSection = new SectionData();
 
+            newSection.numberOfTries = latestScenery[h].Section.no_of_tries;
+            newSection.pointsPerQ = latestScenery[h].Section.points_per_q;
+            newSection.sectionAudio = latestScenery[h].Section.audio_loc;
+            newSection.sectionImage = latestScenery[h].Section.image_loc;
+            newSection.textLine = latestScenery[h].Section.textline;
+            newSection.timerMax = latestScenery[h].Section.timer_max;
+            qData.sectionData.Add(newSection);
+        
+            for(int i = 0; i < latestScenery[h].Questions_list.Count; i++)
+            {   // storing question data, can add fields to QuestionData class and then add lines here
+                QuestionData q = new QuestionData();
+                q.questionText = latestScenery[h].Questions_list[i].question_text;
+                q.imagePath = latestScenery[h].Questions_list[i].question_image;
+                q.audioPath = latestScenery[h].Questions_list[i].question_audio;
+                q.questionNum = i;
+                for(int j = 0; j < latestScenery[h].Questions_list[i].option_parts.Count; j++)
+                {   // can add extra data for answers here. need to add fields to Answerdata first
+                    Answerdata a = new Answerdata();
+                    a.answerText = latestScenery[h].Questions_list[i].option_parts[j].text;
+                    a.imagePath = latestScenery[h].Questions_list[i].option_parts[j].image;
+                    a.audioPath = latestScenery[h].Questions_list[i].option_parts[j].audio;
+                    a.answerNum = latestScenery[h].Questions_list[i].option_parts[j].answer_number;
+                    a.isCorrect = latestScenery[h].Questions_list[i].option_parts[j].iscorrect;
+
+                    q.answers.Add(a);
+
+                }
+
+                qData.sectionData[h].questions.Add(q);
             }
+    }
+    
+    }
 
-            qData.questions.Add(q);
-        }
+    public void TestMethod2()
+    {
+        Debug.Log("tmethod 2");
     }
 }

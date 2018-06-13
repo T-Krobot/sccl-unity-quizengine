@@ -1,20 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class Parser_Quiz_Usual : MonoBehaviour {
-
-    //List<ScenerySet> ListOfSets = new List<ScenerySet>();
-    
-    public QuizDataStorer quizDataStorer;
-
+[System.Serializable]
+public class Parser_Quiz_Usual {
     //change resources.Load target below to load a different file. Takes in a .csv file.
     // Parser. Can be made to return a list of Scenery Sets. For how to use, please look at test() below.
     //Uncomment the following line to change it to return a List<ScenerySet>. Also Uncomment the return statement and comment out the test function call at the bottom.
     //List<ScenerySet> Start(){
-    void Start()
+    
+    public TextAsset quizQuestions;
+    public List<ScenerySet> Start(string target=null)
     {
-        TextAsset quizQuestions = (TextAsset) Resources.Load("Default_Quiz");
+        if (target != null)
+        {
+            quizQuestions = (TextAsset)Resources.Load(target);//("Default_Quiz");
+        }
         string[] items = quizQuestions.text.Split(new char[] { '\n' });
         List<ScenerySet> ListOfSets = new List<ScenerySet>();
 
@@ -31,29 +31,34 @@ public class Parser_Quiz_Usual : MonoBehaviour {
                 {
                     if (possible.Contains("\"")) //this part is part of a comma in the middle branch!
                     {
-                        if (hasreceivedpart)
-                        {
-                            if (possible.Contains("\""))
-                            {
-                                newvalues.Add(concat1 + "," + possible);
-                                concat1 = "";
-                                hasreceivedpart = false;
-                            }
-                            else
-                            {
-                                concat1 += "," + possible;
-                            }
+                        if (!hasreceivedpart)
+                        { // i have received the start of a "phrase"
+
+                            concat1 = possible.Substring(1, possible.Length - 1);
+                            hasreceivedpart = true;
                         }
                         else
-                        {
-                            concat1 = possible;
-                            hasreceivedpart = true;
+                        { //this is the end of a phrase.
+                            newvalues.Add(concat1 + "," + possible.Substring(0, possible.Length - 1));
+                            concat1 = "";
+                            hasreceivedpart = false;
                         }
                     }
                     else
                     {
-                        newvalues.Add(possible);
+                        if (hasreceivedpart)
+                        {
+                            concat1 += "," + possible;
+                        }
+                        else
+                        {
+                            newvalues.Add(possible);
+                        }
                     }
+
+
+
+
                 }
                 if (newvalues[0] == "Section Name:" && LatestScenery.Instructions.textline != null)
                 {
@@ -63,6 +68,7 @@ public class Parser_Quiz_Usual : MonoBehaviour {
                     LatestScenery.addPart(linevalue);
                 }
                 else { LatestScenery.addPart(newvalues.ToArray()); }
+
             }
             else //no comma in line. safe.
             {
@@ -72,28 +78,25 @@ public class Parser_Quiz_Usual : MonoBehaviour {
                     if (linevalue[0] == "") { } //Do absolutely nothing because i don't care about it. 
                     else
                     {
-                        if (linevalue[0] == "Section Name:" && LatestScenery.Instructions!=null)
+                        if (linevalue[0] == "Section Name:" && LatestScenery.Instructions != null)
                         {
                             ListOfSets.Add(LatestScenery);
                             LatestScenery = new ScenerySet();
                             LatestScenery.addPart(linevalue);
                         }
                         else { LatestScenery.addPart(linevalue); }
-                                               
-                        
+
+
                     }
                 }
-            }                                   
+            }
 
         }
         ListOfSets.Add(LatestScenery);
         test(ListOfSets[0]);
-        //test(ListOfSets[1]);
+        test(ListOfSets[1]);
+        return ListOfSets;
 
-        quizDataStorer.StoreQuizData(LatestScenery);
-
-
-        //return ListOfSets;
     }
     public void test(ScenerySet LatestScenery) { //test function
             Debug.Log("SECTION TEXT: " + LatestScenery.Section.textline); //gets the text that is associated with the section name.
@@ -186,7 +189,7 @@ public class Parser_Quiz_Usual : MonoBehaviour {
             }
             Debug.Log("Options: " + trash);
             Debug.Log("Questiontext: " + SAMPLE_QUESTION.question_text); //the question's text is echoed.
-            Debug.Log("Question IMAGE " + SAMPLE_QUESTION.question_image); //echo the submitted question image
+            Debug.Log("Question IMAGE" + SAMPLE_QUESTION.question_image); //echo the submitted question image
             Debug.Log("Question audio " + SAMPLE_QUESTION.question_audio); //echo the submitted question's audio
     }
 
@@ -194,5 +197,4 @@ public class Parser_Quiz_Usual : MonoBehaviour {
 	void Update () {
 		
 	}
-
 }
