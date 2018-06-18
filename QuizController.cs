@@ -20,18 +20,23 @@ public class QuizController : MonoBehaviour
 	List<QuizData> listofQdatas;
 
 
+	[Header("Quiz Options")]
+	public bool showQuestionImage = true;
+	public bool showQuestionText = true;
+	public bool showAnswerImage = true;
+	public bool showAnswerText = true;
+
 	//private int tempInt = 0; // for testing purposes
 
 
 	void Start () 
 	{
+		listOfScenerySets = pqUsual.Start();
+		//Debug.Log(listOfScenerySets.Count);
+		quizDataStorer.StoreQuizData(listOfScenerySets);
 		//UpdateQuestions();											// show the first question. IF YOU GET NULL REFERENCE OR OUT OF RANGE this might be because this is trying to display a question before the quizDataStorer has finished, either make this script execute after with code execution order in unity or idk maybe use a startbutton instead of calling from start
 		//SetMaxRounds();												// call to set max rounds
-		listOfScenerySets = pqUsual.Start();
-		Debug.Log(listOfScenerySets.Count);
-		quizDataStorer.StoreQuizData(listOfScenerySets);
-		
-	}
+		}
 
 	void ResetRound()
 	{
@@ -48,15 +53,19 @@ public class QuizController : MonoBehaviour
 	{
 		if(questionNum <= maxQuestions)
 		{
-			questionDisplay.text = quizDataStorer.qData.sectionData[roundNumber].questions[questionNum].questionText;									// set question text
+			if (showQuestionText)
+				questionDisplay.text = quizDataStorer.qData.sectionData[roundNumber].questions[questionNum].questionText;									// set question text
+			if (showQuestionImage)
 			questionImage.sprite = Resources.Load<Sprite>(quizDataStorer.qData.sectionData[roundNumber].questions[questionNum].imagePath);				// set question image
 			
 			
 			for(int i = 0; i < answerObject.Length; i++)		// as many answer objects as there are, set text and stuff
 			{
-				answerObject[i].GetComponentInChildren<Text>().text = quizDataStorer.qData.sectionData[roundNumber].questions[questionNum].answers[i].answerText;		// set answer text. looks for text in children
+				if (showAnswerText)
+					answerObject[i].GetComponentInChildren<Text>().text = quizDataStorer.qData.sectionData[roundNumber].questions[questionNum].answers[i].answerText;		// set answer text. looks for text in children
 				answerObject[i].GetComponent<AnswerObject>().isCorrect = quizDataStorer.qData.sectionData[roundNumber].questions[questionNum].answers[i].isCorrect;	// set the isCorrect bool
-				answerObject[i].GetComponent<Image>().sprite = Resources.Load<Sprite>(quizDataStorer.qData.sectionData[roundNumber].questions[questionNum].answers[i].imagePath);
+				if (showAnswerImage)
+					answerObject[i].GetComponent<Image>().sprite = Resources.Load<Sprite>(quizDataStorer.qData.sectionData[roundNumber].questions[questionNum].answers[i].imagePath);
 			}
 
 		}
@@ -64,6 +73,8 @@ public class QuizController : MonoBehaviour
 		{
 			Debug.Log("out of questions");			// round over
 		}
+
+		questionImage.gameObject.GetComponent<Level1Question>().Animate();
 		
 	}
 
@@ -91,11 +102,6 @@ public class QuizController : MonoBehaviour
 		yield return new WaitForSeconds(2f);
 		UpdateQuestions();
 	} 
-
-	public void TestMethod()
-	{
-		
-	}
 
 	
 
